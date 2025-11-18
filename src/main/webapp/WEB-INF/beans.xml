@@ -1,0 +1,19 @@
+<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+       http://xmlns.jcp.org/xml/ns/javaee/beans_2_0.xsd"
+       bean-discovery-mode="all">
+    
+    <!-- 
+        beans.xml - Configuración de CDI (Contexts and Dependency Injection)
+        
+        bean-discovery-mode="all": Escanea todos los beans en el classpath
+        
+        Este archivo activa CDI en la aplicación, permitiendo el uso de:
+        - @Named para beans gestionados
+        - @Inject para inyección de dependencias
+        - @RequestScoped, @SessionScoped, @ApplicationScoped para alcances
+        - @Produces para métodos productores
+    -->
+    
+</beans>
