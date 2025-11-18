@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<!--
+    Página de Demostración de DataTable
+    
+    Muestra las capacidades del componente DataTable de PrimeFaces:
+    - Paginación
+    - Ordenamiento por columnas
+    - Filtrado global y por columna
+    - Selección simple y múltiple
+    - Exportación a Excel, PDF, CSV
+    - CRUD operations con dialogs
+    
+    Este es uno de los componentes más potentes de PrimeFaces.
+-->
+
+<ui:composition template="/WEB-INF/templates/main-template.xhtml">
+    
+    <ui:define name="title">
+        DataTable - PrimeNG JSF Showcase
+    </ui:define>
+    
+    <ui:define name="content">
+        <h1 class="text-5xl font-bold mb-3">
+            <i class="pi pi-table text-primary"/>
+            Demostración de DataTable
+        </h1>
+        <p class="text-xl text-600 mb-5">
+            Tabla de datos completa con paginación, filtrado, ordenamiento y CRUD
+        </p>
+        
+        <h:form id="formTabla">
+            
+            <!-- Toolbar con botones de acción -->
+            <p:toolbar styleClass="mb-3">
+                <p:toolbarGroup>
+                    <p:commandButton value="Nuevo" 
+                                   icon="pi pi-plus"
+                                   styleClass="p-button-success mr-2"
+                                   oncomplete="PF('dialogProducto').show()"
+                                   action="#{dataTableBean.prepararNuevoProducto}"
+                                   update=":formDialog:dialogProductoPanel"
+                                   process="@this"/>
+                    
+                    <p:commandButton value="Eliminar Seleccionados" 
+                                   icon="pi pi-trash"
+                                   styleClass="p-button-danger"
+                                   action="#{dataTableBean.eliminarProductosSeleccionados}"
+                                   update="tablaProductos messages"
+                                   disabled="#{empty dataTableBean.productosSeleccionados}">
+                        <p:confirm header="Confirmación" 
+                                 message="¿Está seguro de eliminar los productos seleccionados?" 
+                                 icon="pi pi-exclamation-triangle"/>
+                    </p:commandButton>
+                </p:toolbarGroup>
+                
+                <p:toolbarGroup align="right">
+                    <!-- Botones de exportación -->
+                    <p:commandButton value="Excel" 
+                                   icon="pi pi-file-excel"
+                                   styleClass="p-button-success mr-2">
+                        <p:dataExporter type="xlsx" target="tablaProductos" fileName="productos"/>
+                    </p:commandButton>
+                    
+                    <p:commandButton value="PDF" 
+                                   icon="pi pi-file-pdf"
+                                   styleClass="p-button-warning mr-2">
+                        <p:dataExporter type="pdf" target="tablaProductos" fileName="productos"/>
+                    </p:commandButton>
+                    
+                    <p:commandButton value="CSV" 
+                                   icon="pi pi-file"
+                                   styleClass="p-button-info">
+                        <p:dataExporter type="csv" target="tablaProductos" fileName="productos"/>
+                    </p:commandButton>
+                </p:toolbarGroup>
+            </p:toolbar>
+            
+            <!-- DataTable Principal -->
+            <p:dataTable id="tablaProductos"
+                        value="#{dataTableBean.productos}"
+                        var="producto"
+                        selection="#{dataTableBean.productosSeleccionados}"
+                        rowKey="#{producto.id}"
+                        paginator="true"
+                        rows="10"
+                        rowsPerPageTemplate="5,10,20,50"
+                        paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        filteredValue="#{dataTableBean.productosFiltrados}"
+                        globalFilterFields="codigo,nombre,categoria"
+                        emptyMessage="No se encontraron productos"
+                        styleClass="w-full">
+                
+                <!-- Encabezado con filtro global -->
+                <f:facet name="header">
+                    <div class="flex justify-content-between align-items-center">
+                        <span class="text-xl font-bold">Lista de Productos</span>
+                        <span class="p-input-icon-left">
+                            <i class="pi pi-search"/>
+                            <p:inputText placeholder="Buscar..." 
+                                       onkeyup="PF('tablaProductosWV').filter()"/>
+                        </span>
+                    </div>
+                </f:facet>
+                
+                <!-- Widget Var para JavaScript -->
+                <p:ajax event="rowSelect" update="messages"/>
+                <p:ajax event="rowUnselect" update="messages"/>
+                
+                <!-- Columna de Selección -->
+                <p:column selectionMode="multiple" 
+                         style="width:3rem" 
+                         exportable="false"/>
+                
+                <!-- Columna ID -->
+                <p:column headerText="ID" 
+                         sortBy="#{producto.id}" 
+                         filterBy="#{producto.id}"
+                         style="width:5rem">
+                    <h:outputText value="#{producto.id}"/>
+                </p:column>
+                
+                <!-- Columna Código -->
+                <p:column headerText="Código" 
+                         sortBy="#{producto.codigo}" 
+                         filterBy="#{producto.codigo}">
+                    <h:outputText value="#{producto.codigo}"/>
+                </p:column>
+                
+                <!-- Columna Nombre -->
+                <p:column headerText="Nombre" 
+                         sortBy="#{producto.nombre}" 
+                         filterBy="#{producto.nombre}">
+                    <h:outputText value="#{producto.nombre}"/>
+                </p:column>
+                
+                <!-- Columna Categoría con filtro dropdown -->
+                <p:column headerText="Categoría" 
+                         sortBy="#{producto.categoria}" 
+                         filterBy="#{producto.categoria}"
+                         filterMatchMode="equals">
+                    <f:facet name="filter">
+                        <p:selectOneMenu onchange="PF('tablaProductosWV').filter()">
+                            <f:selectItem itemLabel="Todos" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems value="#{dataTableBean.categorias}"/>
+                        </p:selectOneMenu>
+                    </f:facet>
+                    <h:outputText value="#{producto.categoria}"/>
+                </p:column>
+                
+                <!-- Columna Precio -->
+                <p:column headerText="Precio" 
+                         sortBy="#{producto.precio}"
+                         style="width:10rem">
+                    <h:outputText value="#{producto.precio}">
+                        <f:convertNumber type="currency" currencySymbol="$"/>
+                    </h:outputText>
+                </p:column>
+                
+                <!-- Columna Stock -->
+                <p:column headerText="Stock" 
+                         sortBy="#{producto.stock}"
+                         style="width:8rem">
+                    <h:outputText value="#{producto.stock}"/>
+                </p:column>
+                
+                <!-- Columna Estado con badge -->
+                <p:column headerText="Estado" 
+                         sortBy="#{producto.estado}"
+                         style="width:8rem">
+                    <span class="#{producto.estado eq 'Activo' ? 'badge-success' : 'badge-danger'}">
+                        #{producto.estado}
+                    </span>
+                </p:column>
+                
+                <!-- Columna Acciones -->
+                <p:column headerText="Acciones" 
+                         style="width:10rem" 
+                         exportable="false">
+                    <p:commandButton icon="pi pi-pencil" 
+                                   styleClass="p-button-text p-button-warning mr-1"
+                                   action="#{dataTableBean.prepararEdicionProducto}"
+                                   oncomplete="PF('dialogProducto').show()"
+                                   update=":formDialog:dialogProductoPanel"
+                                   process="@this">
+                        <f:setPropertyActionListener value="#{producto}" 
+                                                   target="#{dataTableBean.productoSeleccionado}"/>
+                    </p:commandButton>
+                    
+                    <p:commandButton icon="pi pi-trash" 
+                                   styleClass="p-button-text p-button-danger"
+                                   action="#{dataTableBean.eliminarProducto}"
+                                   update="tablaProductos messages"
+                                   process="@this">
+                        <f:setPropertyActionListener value="#{producto}" 
+                                                   target="#{dataTableBean.productoSeleccionado}"/>
+                        <p:confirm header="Confirmación" 
+                                 message="¿Está seguro de eliminar este producto?" 
+                                 icon="pi pi-exclamation-triangle"/>
+                    </p:commandButton>
+                </p:column>
+                
+            </p:dataTable>
+            
+            <!-- Diálogo de Confirmación -->
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:commandButton value="Sí" 
+                               type="button" 
+                               styleClass="p-button-success" 
+                               icon="pi pi-check"/>
+                <p:commandButton value="No" 
+                               type="button" 
+                               styleClass="p-button-secondary" 
+                               icon="pi pi-times"/>
+            </p:confirmDialog>
+            
+        </h:form>
+        
+        <!-- Formulario para Diálogo de Producto -->
+        <h:form id="formDialog">
+            <p:dialog id="dialogProductoPanel"
+                     header="Producto" 
+                     widgetVar="dialogProducto"
+                     modal="true" 
+                     showEffect="fade" 
+                     hideEffect="fade"
+                     responsive="true"
+                     styleClass="w-11 md:w-8 lg:w-6">
+                
+                <div class="grid p-fluid">
+                    
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="codigo">Código *</label>
+                            <p:inputText id="codigo" 
+                                       value="#{dataTableBean.producto.codigo}"
+                                       required="true"/>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="categoria">Categoría *</label>
+                            <p:selectOneMenu id="categoria" 
+                                           value="#{dataTableBean.producto.categoria}"
+                                           required="true">
+                                <f:selectItem itemLabel="Seleccione" itemValue="#{null}"/>
+                                <f:selectItems value="#{dataTableBean.categorias}"/>
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="field">
+                            <label for="nombre">Nombre *</label>
+                            <p:inputText id="nombre" 
+                                       value="#{dataTableBean.producto.nombre}"
+                                       required="true"/>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="field">
+                            <label for="descripcion">Descripción</label>
+                            <p:inputTextarea id="descripcion" 
+                                           value="#{dataTableBean.producto.descripcion}"
+                                           rows="3"/>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="precio">Precio *</label>
+                            <p:inputNumber id="precio" 
+                                         value="#{dataTableBean.producto.precio}"
+                                         symbol="$ "
+                                         decimalPlaces="2"
+                                         required="true"/>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="stock">Stock *</label>
+                            <p:inputNumber id="stock" 
+                                         value="#{dataTableBean.producto.stock}"
+                                         decimalPlaces="0"
+                                         required="true"/>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="field">
+                            <label for="estado">Estado *</label>
+                            <p:selectOneRadio id="estado" 
+                                            value="#{dataTableBean.producto.estado}"
+                                            required="true">
+                                <f:selectItem itemLabel="Activo" itemValue="Activo"/>
+                                <f:selectItem itemLabel="Inactivo" itemValue="Inactivo"/>
+                            </p:selectOneRadio>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <f:facet name="footer">
+                    <p:commandButton value="Guardar" 
+                                   icon="pi pi-check"
+                                   styleClass="p-button-success"
+                                   action="#{dataTableBean.guardarProducto}"
+                                   update=":formTabla:tablaProductos :formTabla:messages"
+                                   oncomplete="if (!args.validationFailed) PF('dialogProducto').hide()"/>
+                    
+                    <p:commandButton value="Cancelar" 
+                                   icon="pi pi-times"
+                                   styleClass="p-button-secondary"
+                                   onclick="PF('dialogProducto').hide()"
+                                   type="button"/>
+                </f:facet>
+                
+            </p:dialog>
+        </h:form>
+        
+        <!-- Panel Informativo -->
+        <p:panel header="Características de este DataTable" 
+                styleClass="mt-4" 
+                toggleable="true" 
+                collapsed="true">
+            <ul class="line-height-3">
+                <li><strong>Paginación:</strong> Configurable con diferentes tamaños de página</li>
+                <li><strong>Ordenamiento:</strong> Por cualquier columna haciendo clic en el encabezado</li>
+                <li><strong>Filtrado global:</strong> Busca en múltiples columnas simultáneamente</li>
+                <li><strong>Filtrado por columna:</strong> Filtros específicos por cada columna</li>
+                <li><strong>Selección múltiple:</strong> Checkbox para seleccionar varios registros</li>
+                <li><strong>Exportación:</strong> A Excel, PDF y CSV</li>
+                <li><strong>CRUD completo:</strong> Crear, leer, actualizar y eliminar</li>
+                <li><strong>Diálogos modales:</strong> Para edición sin salir de la página</li>
+                <li><strong>Confirmaciones:</strong> Antes de eliminar registros</li>
+                <li><strong>Responsive:</strong> Se adapta a diferentes tamaños de pantalla</li>
+            </ul>
+        </p:panel>
+        
+    </ui:define>
+    
+</ui:composition>
+</html>

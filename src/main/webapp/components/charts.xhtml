@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<!--
+    Página de Demostración de Gráficos
+    
+    Muestra diferentes tipos de gráficos usando PrimeFaces y Chart.js:
+    - Gráfico de Líneas
+    - Gráfico de Barras
+    - Gráfico Circular (Pie)
+    
+    Los gráficos son interactivos y responsive.
+-->
+
+<ui:composition template="/WEB-INF/templates/main-template.xhtml">
+    
+    <ui:define name="title">
+        Gráficos - PrimeNG JSF Showcase
+    </ui:define>
+    
+    <ui:define name="content">
+        <h1 class="text-5xl font-bold mb-3">
+            <i class="pi pi-chart-bar text-primary"/>
+            Demostración de Gráficos
+        </h1>
+        <p class="text-xl text-600 mb-5">
+            Visualización de datos con Chart.js integrado en PrimeFaces
+        </p>
+        
+        <!-- Grid de Gráficos -->
+        <div class="grid">
+            
+            <!-- Gráfico de Líneas -->
+            <div class="col-12 lg:col-6">
+                <p:panel header="Gráfico de Líneas" styleClass="mb-4">
+                    <p:chart type="line" 
+                            model="#{chartBean.lineModel}" 
+                            style="height:300px"
+                            responsive="true"/>
+                    
+                    <div class="mt-3">
+                        <small class="text-600">
+                            Ideal para mostrar tendencias a lo largo del tiempo.
+                            Compara múltiples series de datos fácilmente.
+                        </small>
+                    </div>
+                </p:panel>
+            </div>
+            
+            <!-- Gráfico de Barras -->
+            <div class="col-12 lg:col-6">
+                <p:panel header="Gráfico de Barras" styleClass="mb-4">
+                    <p:chart type="bar" 
+                            model="#{chartBean.barModel}" 
+                            style="height:300px"
+                            responsive="true"/>
+                    
+                    <div class="mt-3">
+                        <small class="text-600">
+                            Perfecto para comparar diferentes categorías.
+                            Los valores se muestran claramente en cada barra.
+                        </small>
+                    </div>
+                </p:panel>
+            </div>
+            
+            <!-- Gráfico Circular -->
+            <div class="col-12 lg:col-6">
+                <p:panel header="Gráfico Circular (Pie)" styleClass="mb-4">
+                    <p:chart type="pie" 
+                            model="#{chartBean.pieModel}" 
+                            style="height:300px"
+                            responsive="true"/>
+                    
+                    <div class="mt-3">
+                        <small class="text-600">
+                            Excelente para mostrar proporciones y porcentajes.
+                            Visualiza la distribución de un total.
+                        </small>
+                    </div>
+                </p:panel>
+            </div>
+            
+            <!-- Panel de Información -->
+            <div class="col-12 lg:col-6">
+                <p:panel header="Sobre los Gráficos" styleClass="mb-4">
+                    <h3>Características</h3>
+                    <ul class="line-height-3">
+                        <li><strong>Interactivos:</strong> Tooltips al pasar el mouse</li>
+                        <li><strong>Responsive:</strong> Se adaptan al tamaño de pantalla</li>
+                        <li><strong>Animados:</strong> Transiciones suaves al cargar</li>
+                        <li><strong>Personalizables:</strong> Colores, leyendas, ejes</li>
+                        <li><strong>Exportables:</strong> Se pueden guardar como imagen</li>
+                    </ul>
+                    
+                    <h3 class="mt-3">Tipos Disponibles</h3>
+                    <p class="text-600">
+                        PrimeFaces soporta múltiples tipos de gráficos:
+                    </p>
+                    <ul class="line-height-3">
+                        <li>Line (Líneas)</li>
+                        <li>Bar (Barras)</li>
+                        <li>Pie (Circular)</li>
+                        <li>Donut (Dona)</li>
+                        <li>Radar</li>
+                        <li>Polar Area</li>
+                        <li>Bubble (Burbujas)</li>
+                        <li>Scatter (Dispersión)</li>
+                    </ul>
+                    
+                    <h3 class="mt-3">Casos de Uso</h3>
+                    <ul class="line-height-3">
+                        <li><strong>Dashboards:</strong> KPIs y métricas de negocio</li>
+                        <li><strong>Análisis:</strong> Tendencias y patrones</li>
+                        <li><strong>Reportes:</strong> Visualización de informes</li>
+                        <li><strong>Monitoreo:</strong> Métricas en tiempo real</li>
+                    </ul>
+                </p:panel>
+            </div>
+            
+        </div>
+        
+        <!-- Panel de Ejemplo de Código -->
+        <p:panel header="Ejemplo de Código" toggleable="true" collapsed="true">
+            <h4>Managed Bean (Java)</h4>
+            <pre class="language-java"><code>@Named
+@ViewScoped
+public class ChartBean implements Serializable {
+    private LineChartModel lineModel;
+    
+    @PostConstruct
+    public void init() {
+        lineModel = new LineChartModel();
+        
+        LineChartSeries series = new LineChartSeries();
+        series.setLabel("Ventas 2024");
+        series.set("Ene", 75);
+        series.set("Feb", 69);
+        series.set("Mar", 90);
+        
+        lineModel.addSeries(series);
+        lineModel.setTitle("Ventas Mensuales");
+    }
+    
+    // Getters y setters...
+}</code></pre>
+            
+            <h4 class="mt-4">Vista XHTML</h4>
+            <pre class="language-xml"><code>&lt;p:chart type="line" 
+         model="#{chartBean.lineModel}" 
+         style="height:300px"
+         responsive="true"/&gt;</code></pre>
+        </p:panel>
+        
+        <!-- Panel de Buenas Prácticas -->
+        <div class="mt-4">
+            <p:panel header="Buenas Prácticas con Gráficos" toggleable="true" collapsed="true">
+                <ul class="line-height-3">
+                    <li><strong>Simplicidad:</strong> No sobrecargues los gráficos con demasiados datos</li>
+                    <li><strong>Colores:</strong> Usa colores consistentes y accesibles</li>
+                    <li><strong>Leyendas:</strong> Siempre incluye leyendas claras</li>
+                    <li><strong>Ejes:</strong> Etiqueta los ejes con unidades claras</li>
+                    <li><strong>Responsive:</strong> Asegúrate que funcionen en móviles</li>
+                    <li><strong>Performance:</strong> Limita los puntos de datos para grandes conjuntos</li>
+                    <li><strong>Actualización:</strong> Usa AJAX para actualizar sin recargar</li>
+                    <li><strong>Exportación:</strong> Permite descargar los datos</li>
+                </ul>
+            </p:panel>
+        </div>
+        
+    </ui:define>
+    
+</ui:composition>
+</html>
