@@ -113,7 +113,6 @@ public class ChartBean implements Serializable {
         // Configuración del gráfico
         lineModel.setTitle("Comparación de Ventas Anuales");
         lineModel.setLegendPosition("ne"); // Posición de leyenda: northeast
-        lineModel.getAxis("y").setLabel("Ventas (miles)");
         lineModel.setShowPointLabels(false);
         lineModel.setStacked(false);
         
@@ -141,7 +140,6 @@ public class ChartBean implements Serializable {
         // Configuración del gráfico
         barModel.setTitle("Ventas por Categoría de Producto");
         barModel.setLegendPosition("ne");
-        barModel.getAxis("y").setLabel("Ventas (miles)");
         barModel.setStacked(false);
         barModel.setShowPointLabels(true);
         
